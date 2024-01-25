@@ -8,7 +8,6 @@ from aiohttp.web_exceptions import HTTPBadRequest, HTTPInternalServerError, HTTP
 from aiohttp.web_middlewares import middleware
 from marshmallow import ValidationError
 
-from api.common import db
 from api.common.configs import (
     MONGODB_HOST,
     REDIS_DB_NUM,
@@ -37,7 +36,7 @@ async def health_check(request: web.Request):
     assert request.app["redis"].ping()
     assert request.app["mongodb"].admin.command("ping")["ok"] == 1
     # TODO remove later
-    db.print_all(request.app)
+    # db.print_all(request.app)
     return web.Response(text="Health Check is OK")
 
 
@@ -74,7 +73,7 @@ async def init_mongodb_connection(app):
 
 
 async def init_redis_connection(app):
-    app['redis'] = Redis(
+    app["redis"] = Redis(
         host=REDIS_HOST,
         port=REDIS_PORT,
         db=REDIS_DB_NUM,

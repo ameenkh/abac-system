@@ -35,15 +35,6 @@ def print_all(app):
         print(f"\t{doc=}")
 
 
-async def get_user(user_id: ObjectId) -> Dict[str, Any]:
-    if user_id not in _USERS:
-        raise NotFoundError(f"user: '{user_id}' was not found")
-
-    return {
-        "user_id": user_id,
-        "attributes": _USERS[user_id].copy()
-    }
-
 def get_policy(policy_id: ObjectId) -> Dict[str, Any]:
     if policy_id not in _POLICIES:
         raise NotFoundError(f"policy: '{policy_id}' was not found")
@@ -52,6 +43,7 @@ def get_policy(policy_id: ObjectId) -> Dict[str, Any]:
         "policy_id": policy_id,
         "conditions": _POLICIES[policy_id].copy()
     }
+
 
 async def get_resource(resource_id: ObjectId) -> Dict[str, Any]:
     if resource_id not in _RESOURCES:

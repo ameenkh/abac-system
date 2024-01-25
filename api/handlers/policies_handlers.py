@@ -4,7 +4,8 @@ from aiohttp import web
 from bson import ObjectId
 from pymongo.results import InsertOneResult, UpdateResult
 
-from api.common.configs import ATTRIBUTES_COL, DB, POLICIES_COL
+from api.common.cache_manager import attributes_cache
+from api.common.configs import DB, POLICIES_COL
 from api.common.exceptions import NotFoundError
 from api.common.models import PolicySchema
 from api.common.utils import assert_path_param_existence, validate_conditions_types
@@ -14,10 +15,7 @@ schema = PolicySchema()
 
 
 def _validate_conditions(request, conditions: List[Dict[str, Any]]) -> None:
-    attrs_docs = request.app["mongodb"][DB][ATTRIBUTES_COL].find({
-        "_id": {"$in": [cond["attribute_name"] for cond in conditions]}
-    })
-    attrs_docs = {d["_id"]: d["attribute_type"] for d in attrs_docs}
+    attrs_docs = attributes_cache.get(request)
     validate_conditions_types(attrs_docs, conditions)
 
 

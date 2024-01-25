@@ -4,7 +4,8 @@ from aiohttp import web
 from bson import ObjectId
 from pymongo.results import InsertOneResult, UpdateResult
 
-from api.common.configs import ATTRIBUTES_COL, DB, USERS_COL
+from api.common.cache_manager import attributes_cache
+from api.common.configs import DB, USERS_COL
 from api.common.exceptions import NotFoundError
 from api.common.models import PatchUserAttributeSchema, UserSchema
 from api.common.utils import assert_path_param_existence, validate_values_types
@@ -15,10 +16,7 @@ patch_user_attribute_schema = PatchUserAttributeSchema()
 
 
 def _validate_attributes(request, user_attributes: Dict[str, Any]) -> None:
-    attrs_docs = request.app["mongodb"][DB][ATTRIBUTES_COL].find({
-        "_id": {"$in": list(user_attributes.keys())}
-    })
-    attrs_docs = {d["_id"]: d["attribute_type"] for d in attrs_docs}
+    attrs_docs = attributes_cache.get(request)
     validate_values_types(attrs_docs, user_attributes)
 
 

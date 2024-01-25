@@ -14,6 +14,13 @@ def make_error(msg: str) -> Dict[str, Any]:
     return {"error": msg}
 
 
+def assert_query_param_existence(request: web.Request, query_param: str) -> str:
+    value = request.rel_url.query.get(query_param)
+    if not value:
+        raise ValidationError(f"Missing required query param: {query_param}")
+    return value
+
+
 def assert_path_param_existence(request: web.Request, path_param: str) -> str:
     value = request.match_info.get(path_param)
     if not value:
