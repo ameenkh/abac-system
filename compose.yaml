@@ -1,0 +1,35 @@
+name: abac-system
+services:
+  redis:
+    image: redis/redis-stack-server:latest
+    volumes:
+      - ./redis/redis.conf:/redis-stack.conf
+    restart: always
+    networks:
+      - abac-system-net
+    container_name: redis
+
+  mongodb:
+    image: mongo:latest
+
+    restart: always
+    networks:
+      - abac-system-net
+    container_name: mongodb
+
+  api:
+    build:
+      context: .
+    image: api:dev-0.1.0
+    ports:
+      - "9876:9876"
+    networks:
+      - abac-system-net
+    container_name: api
+    depends_on:
+      - redis
+      - mongodb
+
+networks:
+  abac-system-net:
+    name: abac-system-net

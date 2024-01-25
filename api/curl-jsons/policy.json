@@ -1,0 +1,9 @@
+{
+	"conditions": [
+		{
+			"attribute_name": "age",
+			"operator": ">",
+			"value": 20
+		}
+	]
+}
