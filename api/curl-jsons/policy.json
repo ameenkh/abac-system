@@ -3,7 +3,12 @@
 		{
 			"attribute_name": "age",
 			"operator": ">",
-			"value": 20
+			"value": 30
+		},
+		{
+			"attribute_name": "is_manager",
+			"operator": "=",
+			"value": true
 		}
 	]
 }

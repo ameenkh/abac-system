@@ -1,5 +1,6 @@
 {
 	"attributes": {
-		"age": 31
+		"age": 31,
+		"is_manager": true
 	}
 }

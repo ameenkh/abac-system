@@ -1,3 +1,5 @@
+from bson import ObjectId
+from bson.errors import InvalidId
 from marshmallow import Schema, ValidationError, fields
 from marshmallow.validate import Length, OneOf
 
@@ -6,6 +8,17 @@ from marshmallow.validate import Length, OneOf
 # I chose Marshmallow library because its super fast and its dict to dict
 
 MAX_ID_LENGTH = 256
+
+
+class ObjectIdField(fields.Field):
+    def _serialize(self, value: ObjectId, attr, obj, **kwargs):
+        return str(value)
+
+    def _deserialize(self, value: str, attr, data, **kwargs):
+        try:
+            return ObjectId(value)
+        except (InvalidId, TypeError):
+            raise ValidationError(f"{attr}={value} is not valid ObjectId")
 
 
 class IdField(fields.String):
@@ -42,6 +55,7 @@ class AttributeSchema(Schema):
 
 
 class UserSchema(Schema):
+    _id = ObjectIdField(data_key="user_id", dump_only=True)
     attributes = fields.Dict(keys=AttributeNameField(), values=ValueField(required=True))
 
 
@@ -56,8 +70,10 @@ class PolicyData(Schema):
 
 
 class PolicySchema(Schema):
+    _id = ObjectIdField(data_key="policy_id", dump_only=True)
     conditions = fields.List(fields.Nested(PolicyData()))
 
 
 class ResourceSchema(Schema):
-    policy_ids = fields.List(IdField())
+    _id = ObjectIdField(data_key="resource_id", dump_only=True)
+    policy_ids = fields.List(ObjectIdField())

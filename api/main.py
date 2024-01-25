@@ -8,6 +8,15 @@ from aiohttp.web_exceptions import HTTPBadRequest, HTTPInternalServerError, HTTP
 from aiohttp.web_middlewares import middleware
 from marshmallow import ValidationError
 
+from api.common import db
+from api.common.configs import (
+    MONGODB_HOST,
+    REDIS_DB_NUM,
+    REDIS_HOST,
+    REDIS_PASS,
+    REDIS_PORT,
+    SERVER_PORT,
+)
 from api.common.exceptions import NotFoundError
 from api.common.utils import make_error
 from api.handlers import (
@@ -27,6 +36,8 @@ routes = web.RouteTableDef()
 async def health_check(request: web.Request):
     assert request.app["redis"].ping()
     assert request.app["mongodb"].admin.command("ping")["ok"] == 1
+    # TODO remove later
+    db.print_all(request.app)
     return web.Response(text="Health Check is OK")
 
 
@@ -50,8 +61,13 @@ async def safe_execution_middleware(request: web.Request, handler: Handler) -> w
 
 
 async def init_mongodb_connection(app):
-    app['mongodb'] = pymongo.MongoClient("mongodb://mongodb:27017/abac-db?retryWrites=true&w=majority")
+    app['mongodb'] = pymongo.MongoClient(MONGODB_HOST)
     logger.info("MongoDB connection initialized")
+
+    # TODO ensure indexes here
+    # Creating the indexes should be handled in another component during the deployments
+    # but for the simplicity of this assignment I am going do it here
+
     yield
     app['mongodb'].close()
     logger.info("MongoDB connection closed")
@@ -59,10 +75,10 @@ async def init_mongodb_connection(app):
 
 async def init_redis_connection(app):
     app['redis'] = Redis(
-        host="redis",
-        port=6379,
-        db=1,
-        password="1234",
+        host=REDIS_HOST,
+        port=REDIS_PORT,
+        db=REDIS_DB_NUM,
+        password=REDIS_PASS,
         decode_responses=True
     )
     logger.info("Redis connection initialized")
@@ -87,7 +103,7 @@ async def app_factory() -> Application:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     _app = app_factory()
-    web.run_app(_app, port=9876, access_log_format="%P %a %t %r %s %Tf")
+    web.run_app(_app, port=SERVER_PORT, access_log_format="%P %a %t %r %s %Tf")
 
 
 # curl -d @curl-json/attribute.json localhost:8765/attributes
