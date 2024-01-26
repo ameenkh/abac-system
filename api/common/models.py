@@ -43,8 +43,11 @@ class ValueField(fields.Field):
         else:
             raise ValidationError('Field should be one of: string, boolean or integer')
 
+class GetAttributeSchema(Schema):
+    _id = ObjectIdField(data_key="attribute_name", dump_only=True)
+    attribute_type = AttributeTypeField()
 
-class AttributeSchema(Schema):
+class CreateAttributeSchema(Schema):
     attribute_name = AttributeNameField()
     attribute_type = AttributeTypeField()
 

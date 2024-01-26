@@ -59,10 +59,13 @@ mocked_conditions_cache = MockedConditionCache()
 def test_decide_if_authorized():
     assert decide_if_authorized([age_policy], {"age": 31}, mocked_conditions_cache, mocked_request)
     assert decide_if_authorized([age_and_is_manager_policy], {"age": 31, "is_manager": True}, mocked_conditions_cache, mocked_request)
-    assert decide_if_authorized([john_is_manager_policy], {"age": 31, "is_manager": True, "name": "John"}, mocked_conditions_cache, mocked_request)
+    assert decide_if_authorized([john_is_manager_policy, age_policy], {"age": 31, "is_manager": True, "name": "John"}, mocked_conditions_cache, mocked_request)
 
     # one of the policies are true
     assert decide_if_authorized([age_policy, age_and_is_manager_policy], {"age": 51}, mocked_conditions_cache, mocked_request)
 
     # Condition attribute does not exist on user's attribute
     assert not decide_if_authorized([age_policy], {"name": "John"}, mocked_conditions_cache, mocked_request)
+
+    # all policies are false
+    assert not decide_if_authorized([john_is_manager_policy, age_policy], {"age": 10, "is_manager": False, "name": "John"}, mocked_conditions_cache, mocked_request)
