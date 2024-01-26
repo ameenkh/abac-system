@@ -73,15 +73,17 @@ async def safe_execution_middleware(request: web.Request, handler: Handler) -> w
 
 
 async def init_mongodb_connection(app):
+    # This section is called upon running the application
     app['mongodb'] = pymongo.MongoClient(MONGODB_HOST)
     logger.info("MongoDB connection initialized")
     yield
-    # will be closed when the server terminates
+    # This section will be called when the server terminates
     app['mongodb'].close()
     logger.info("MongoDB connection closed")
 
 
 async def init_redis_connection(app):
+    # This section is called upon running the application
     app["redis"] = Redis(
         host=REDIS_HOST,
         port=REDIS_PORT,
@@ -91,12 +93,13 @@ async def init_redis_connection(app):
     )
     logger.info("Redis connection initialized")
     yield
-    # will be closed when the server terminates
+    # This section will be called when the server terminates
     app['redis'].close()
     logger.info("Redis connection closed")
 
 
 async def app_factory() -> Application:
+    # We can add other middlewares as well, like authentications, analytics, logs, etc..
     app = web.Application(middlewares=[safe_execution_middleware])
 
     app.cleanup_ctx.append(init_mongodb_connection)
