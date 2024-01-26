@@ -29,5 +29,7 @@ async def create_attribute(request: web.Request):
         "attribute_type": json_body["attribute_type"]
     }
     request.app["mongodb"][DB][ATTRIBUTES_COL].insert_one(doc)  # So in case of duplicate _id it will throw pymongo.errors.DuplicateKeyError
+
+    # After modifying the global attributes, the attribute's cache needs to be cleared
     attributes_cache.invalidate(request)
     return web.json_response({attribute_name: json_body["attribute_type"]})

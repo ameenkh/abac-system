@@ -45,6 +45,8 @@ def validate_values_types(attributes_conf: Dict[str, str], attributes: Dict[str,
                     raise ValidationError(f"attribute '{k}' is not boolean")
 
 
+# This function validates that the conditions are valid for the attribute's types
+# example if there is a condition on boolean attribute, then it can't use operator 'starts_with' on it
 def validate_conditions_types(attributes_conf: Dict[str, str], conditions: List[Dict[str, Any]]) -> None:
     for cond in conditions:
         k = cond["attribute_name"]
@@ -68,6 +70,7 @@ def validate_conditions_types(attributes_conf: Dict[str, str], conditions: List[
                     raise ValidationError(f"attribute '{k}' is not boolean")
 
 
+# This function applies the condition on the attributes and return True/False accordingly
 def apply(condition: Dict[str, Any], attributes: Dict[str, Any]) -> bool:
     if condition["attribute_name"] not in attributes:
         return False
