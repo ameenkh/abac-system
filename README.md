@@ -66,6 +66,7 @@ so the Gunicorn server are deployed with `(number of cpus * 2) + 1`
 * 2 caches: the first one is `attributes cache` which holds the attributes (names+types) in memory, since we have many writes and on each write we have to validate the data being written according to the attributes definitions, its best that we hold this list in memory and to not make a db query on each write for it.
 the second cache is `conditions cache` which holds the conditions by policy_id key, this is a crucial part of the is_authorized logic, so I chose to save it in memory for the sake of the performace
 * the 2 caches above is being invalidated when some of its keys changes, and it will be loaded upon the next read call for it
+* Also I configured Redis to run in "in memory only" mode, without persisting the data, which give us a performance boost
 
 ---
 
