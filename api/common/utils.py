@@ -4,6 +4,8 @@ from aiohttp import web
 from bson import ObjectId
 from marshmallow import ValidationError
 
+from api.common.cache_manager import ConditionsCacheLoader
+
 _allowed_operators = {
     "string": {"=", ">", "<", "starts_with"},
     "boolean": {"="},
@@ -36,14 +38,16 @@ def validate_values_types(attributes_conf: Dict[str, str], attributes: Dict[str,
         attribute_type = attributes_conf[k]
         match attribute_type:
             case "string":
-                if not isinstance(v, str):
+                if type(v) is not str:
                     raise ValidationError(f"attribute '{k}' is not string")
             case "integer":
-                if not isinstance(v, int):
+                if type(v) is not int:
                     raise ValidationError(f"attribute '{k}' is not integer")
             case "boolean":
-                if not isinstance(v, bool):
+                if type(v) is not bool:
                     raise ValidationError(f"attribute '{k}' is not boolean")
+            case _:
+                raise ValidationError(f"attribute '{k}' of type '{attribute_type}' is not supported")
 
 
 # This function validates that the conditions are valid for the attribute's types
@@ -61,13 +65,13 @@ def validate_conditions_types(attributes_conf: Dict[str, str], conditions: List[
 
         match attribute_type:
             case "string":
-                if not isinstance(v, str):
+                if type(v) is not str:
                     raise ValidationError(f"attribute '{k}' is not string")
             case "integer":
-                if not isinstance(v, int):
+                if type(v) is not int:
                     raise ValidationError(f"attribute '{k}' is not integer")
             case "boolean":
-                if not isinstance(v, bool):
+                if type(v) is not bool:
                     raise ValidationError(f"attribute '{k}' is not boolean")
 
 
@@ -87,7 +91,12 @@ def apply(condition: Dict[str, Any], attributes: Dict[str, Any]) -> bool:
 
 
 # Moved the logic into one function here in order to be able to write a unit test for it
-def decide_if_authorized(policy_ids: List[ObjectId], user_attributes: Dict[str, Any], conditions_cache, request) -> bool:
+def decide_if_authorized(
+        policy_ids: List[ObjectId],
+        user_attributes: Dict[str, Any],
+        conditions_cache: ConditionsCacheLoader,
+        request
+) -> bool:
     for policy_id in policy_ids:
         # Get the policy conditions from cache
         for cond in conditions_cache.get(request, policy_id):

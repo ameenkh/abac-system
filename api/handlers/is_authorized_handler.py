@@ -2,7 +2,7 @@ from aiohttp import web
 from bson import ObjectId
 
 from api.common.cache_manager import conditions_cache
-from api.common.configs import DB, USERS_COL, RESOURCES_COL
+from api.common.configs import DB, RESOURCES_COL, USERS_COL
 from api.common.exceptions import NotFoundError
 from api.common.utils import assert_query_param_existence, decide_if_authorized
 

@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 from aiohttp import web
 from bson import ObjectId
@@ -11,7 +11,7 @@ from api.common.exceptions import NotFoundError
 # Since upon each update (policy/user attribute) we need to check if the attribute exists in the global list
 # Then it's best to save it in cache, specially when we have many updates per second,
 # also there are "only" 1000 attribute (str to str) so it's pretty small and redis can handle it well
-class _AttributesCacheLoader:
+class AttributesCacheLoader:
     TTL_SECONDS = 60 * 15  # 15 minutes
 
     @staticmethod
@@ -44,7 +44,7 @@ class _AttributesCacheLoader:
 
 # Getting the policy conditions is also a crucial part of the is_authorized calculation,
 # and since each policy has only 20 conditions, then it fits well in redis and will be lightweight
-class _ConditionsCacheLoader:
+class ConditionsCacheLoader:
     TTL_SECONDS = 60 * 15  # 15 minutes
 
     @staticmethod
@@ -76,5 +76,5 @@ class _ConditionsCacheLoader:
         request.app["redis"].delete(self.build_key(policy_id))
 
 
-attributes_cache: _AttributesCacheLoader = _AttributesCacheLoader()
-conditions_cache: _ConditionsCacheLoader = _ConditionsCacheLoader()
+attributes_cache: AttributesCacheLoader = AttributesCacheLoader()
+conditions_cache: ConditionsCacheLoader = ConditionsCacheLoader()
