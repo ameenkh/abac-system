@@ -6,6 +6,7 @@
 * [First time installation](#first-time-installation)
 * [Backend architecture design](#backend-architecture-design)
 * [Other approach](#other-approach-that-i-thought-about)
+* [Instead of Swagger](#instead-of-swagger)
 
 ---
 
@@ -46,6 +47,7 @@ so the Gunicorn server are deployed with `(number of cpus * 2) + 1`
 
 * `api` component is implemented on top of `aiohttp`, its a lightweight and super fast framework 
 * There is a health check call that happens each 15 seconds (can be configured in Dockerfile) which simply pings MongoDB and Redis to make sure they're up and running
+* I didn't use `await` operations, since we don't have a heavy IO operations, and it doesn't really matter since the parallalism is handled by Gunicorn server
 
 ---
 
@@ -73,6 +75,7 @@ run:
 ```
 poetry run pytest
 ```
+
 --- 
 
 ### Load tests:
@@ -98,6 +101,20 @@ and another reason for that is we have 10000 users x 100000 resources, the redis
 
 Thats why I preferred to cache only the crucial parts in the code which responsible for doing the calculation as much as fast as it can in memory.
 
+--- 
 
+## Instead of Swagger
+I provided only 3 examples of the endpoints due to time constraints, but in addition to it you can use these commands to add/get entities from the api server:
+```
+curl -d @curl-jsons/attribute.json localhost:9876/attributes
+curl -d @curl-jsons/user.json localhost:9876/users
+curl -d @curl-jsons/policy.json localhost:9876/policies
+curl -d @curl-jsons/resource.json localhost:9876/resources
 
+curl -X PATCH -d @curl-jsons/patch_user_attribute.json localhost:9876/users/65b26f8cbd9ef108620e18f8/attributes/age
+curl -X GET "localhost:9876/is_authorized?user_id=65b26f8cbd9ef108620e18f8&resource_id=65b271c18b9b7488f53824c6"
+```
+
+the json payloads are saved in `curl-jsons` folder
+(before calling POST /resources make sure to add a policy before and updating its id to curl-json/resource.json)
 

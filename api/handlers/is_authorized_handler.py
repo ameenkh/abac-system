@@ -27,10 +27,14 @@ async def is_authorized(request: web.Request):
     user_attributes = user_doc["attributes"]
 
     # Get Resource policies ids from DB
+    # Also here no need to save the resource in redis, since it will be a small document to be fetched (list of ids)
     resource_doc = request.app["mongodb"][DB][RESOURCES_COL].find_one({"_id": resource_id})
     if not resource_doc:
         raise NotFoundError(f"resource: '{resource_id}' was not found")
     policy_ids = resource_doc["policy_ids"]
+
+    # Note: MongoDB knows to cache the most recently used data set in RAM, so in case we are getting a lot of requests per second,
+    # the results will be fetched from RAM memory (I am mentioning this because of querying users and resources colelctions)
 
     is_auth = decide_if_authorized(policy_ids, user_attributes, conditions_cache, request)
     return web.json_response({"is_authorized": is_auth})

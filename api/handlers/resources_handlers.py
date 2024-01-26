@@ -14,6 +14,7 @@ routes = web.RouteTableDef()
 schema = ResourceSchema()
 
 
+# Check if policy ids exists in the DB
 def _validate_policy_ids(request, policy_ids: List[ObjectId]) -> None:
     policies_count = request.app["mongodb"][DB][POLICIES_COL].count_documents({
         "_id": {"$in": policy_ids}
