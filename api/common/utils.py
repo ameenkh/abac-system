@@ -103,7 +103,7 @@ def decide_if_authorized(
             if not apply(cond, user_attributes):
                 break
         else:
-            # all conditions are met
+            # all conditions are met, stop and return true immediately
             return True
     else:
         return False
