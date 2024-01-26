@@ -35,8 +35,6 @@ routes = web.RouteTableDef()
 async def health_check(request: web.Request):
     assert request.app["redis"].ping()
     assert request.app["mongodb"].admin.command("ping")["ok"] == 1
-    # TODO remove later
-    # db.print_all(request.app)
     return web.Response(text="Health Check is OK")
 
 

@@ -1,6 +1,7 @@
 from typing import Any, Dict, List
 
 from aiohttp import web
+from bson import ObjectId
 from marshmallow import ValidationError
 
 _allowed_operators = {
@@ -83,3 +84,17 @@ def apply(condition: Dict[str, Any], attributes: Dict[str, Any]) -> bool:
             return condition["value"] > attributes[condition["attribute_name"]]
         case "starts_with":
             return attributes[condition["attribute_name"]].startswith(condition["value"])
+
+
+# Moved the logic into one function here in order to be able to write a unit test for it
+def decide_if_authorized(policy_ids: List[ObjectId], user_attributes: Dict[str, Any], conditions_cache, request) -> bool:
+    for policy_id in policy_ids:
+        # Get the policy conditions from cache
+        for cond in conditions_cache.get(request, policy_id):
+            if not apply(cond, user_attributes):
+                break
+        else:
+            # all conditions are met
+            return True
+    else:
+        return False

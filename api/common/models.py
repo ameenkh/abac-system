@@ -21,11 +21,6 @@ class ObjectIdField(fields.Field):
             raise ValidationError(f"{attr}={value} is not valid ObjectId")
 
 
-class IdField(fields.String):
-    def __init__(self, required=True, **additional_metadata):
-        super().__init__(required=required, validate=Length(max=MAX_ID_LENGTH), **additional_metadata)
-
-
 class AttributeNameField(fields.String):
     def __init__(self, **additional_metadata):
         super().__init__(required=True, validate=Length(max=MAX_ID_LENGTH), **additional_metadata)  # limiting the length to 256 in order to prevent memort crashed (like DDOS attacks)
